@@ -85,7 +85,55 @@ int get_filepath() {
     }
 }
 
+void assess(json_object *jobj) {
+    json_object *eventobj = json_object_object_get(jobj, "event");
+    if (eventobj) {
+        const char *event = json_object_get_string(eventobj);
+        // Hyperspce start
+        if (!strcmp(event, "StartJump")) {
+            json_object *jumptypeobj = json_object_object_get(jobj, "JumpType");
+            if (jumptypeobj) {
+                const char *val = json_object_get_string(jumptypeobj);
+                if (!strcmp(val, "Hyperspace")) {
+                    g13_draw_sentence(60, 8, "JUMPING");
+                    g13_set_color(0xff, 0x00, 0x00);
+                    g13_render();
+                }
+            }
+        }
+        // Hyperspace end
+        if (!strcmp(event, "Music")) {
+            json_object *jumptypeobj = json_object_object_get(jobj, "MusicTrack");
+            if (jumptypeobj) {
+                const char *val = json_object_get_string(jumptypeobj);
+                if (!strcmp(val, "DestinationFromHyperspace")) {
+                    g13_clear_lcd();
+                    g13_set_color(0xff, 0x66, 0x00);
+                    g13_render();
+                }
+            }
+        }
+    } else {
+    }
+}
 
+struct json_tokener* s_tok;
+
+// Parse a line from the file as a JSON object
+void parse(char* str) {
+    json_object *jobj = NULL;
+    int stringlen = 0;
+    enum json_tokener_error jerr;
+    stringlen = strlen(str);
+    jobj = json_tokener_parse_ex(s_tok, str, stringlen);
+    jerr = json_tokener_get_error(s_tok);
+    if (jerr == json_tokener_success) {
+        assess(jobj);
+    } else {
+        fprintf(stderr, "Error: %s\n", json_tokener_error_desc(jerr));
+        // Handle errors, as appropriate for your application.
+    }
+}
 
 static int last_position=0;
 int find_new_text(FILE* file) {
@@ -106,6 +154,7 @@ int find_new_text(FILE* file) {
       if (ptr) {
           last_position = ftell(file);
           /*printf("Char: %s Last %d\n", ptr, last_position);*/
+          parse(ptr);
           // end of file 
           if(filesize == last_position){
             return filesize;
@@ -127,15 +176,21 @@ int main(int argc, char** argv) {
     /*g13_bind_stick(stick);*/
     g13_clear_lcd();
 
+    g13_set_color(0xff, 0x66, 0x00);
+
     get_filepath();
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
     printf("File is %s\n", s_filepath);
     FILE* file = fopen(s_filepath, "r");
 
+    s_tok = json_tokener_new();
+
     while (1) {
         find_new_text(file);
         usleep(10000);
     }
+
+    json_tokener_free(s_tok);
 
     return 0;
 }
