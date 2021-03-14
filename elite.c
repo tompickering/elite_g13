@@ -7,21 +7,33 @@
 #include <string.h>
 
 #include <json-c/json.h>
+#include <X11/Xlib.h>
 
 #include <libg13.h>
 
+Display *display;
+Window win;
+
 unsigned char x, y;
 
-void red() {
-    g13_set_color(255, 0, 0);
+#define KEY_INSERT 118
+#define KEY_L 46
+
+int handle_x11_error(Display* display, XErrorEvent* error){
+    fprintf(stderr, "ERROR: X11 error\n");
+    return 1;
 }
 
-void green() {
-    g13_set_color(0, 255, 0);
-}
-
-void blue() {
-    g13_set_color(0, 0, 255);
+void g1(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        //ev.xkey.state = ShiftMask;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_INSERT;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
 }
 
 void stick(unsigned char new_x, unsigned char new_y) {
@@ -168,10 +180,11 @@ int find_new_text(FILE* file) {
 }
 
 int main(int argc, char** argv) {
+    display = XOpenDisplay(NULL);
+    XSetErrorHandler(handle_x11_error);
+
     g13_init();
-    /*g13_bind_key(G1, red);*/
-    /*g13_bind_key(G2, green);*/
-    /*g13_bind_key(G3, blue);*/
+    g13_bind_key(G1, g1);
     /*g13_bind_key(ROUND, clear);*/
     /*g13_bind_stick(stick);*/
     g13_clear_lcd();
@@ -186,6 +199,9 @@ int main(int argc, char** argv) {
     s_tok = json_tokener_new();
 
     while (1) {
+        // Update focus window
+        int revert_to;
+        XGetInputFocus(display, &win, &revert_to);
         find_new_text(file);
         usleep(10000);
     }
