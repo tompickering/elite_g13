@@ -107,7 +107,9 @@ void assess(json_object *jobj) {
             if (jumptypeobj) {
                 const char *val = json_object_get_string(jumptypeobj);
                 if (!strcmp(val, "Hyperspace")) {
-                    g13_draw_sentence(60, 8, "JUMPING");
+                    g13_draw_sentence(60, 2, "JUMPING");
+                    g13_draw_sentence(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
+                    g13_draw_sentence(4, 20, json_object_get_string(json_object_object_get(jobj, "StarClass")));
                     g13_set_color(0xff, 0x00, 0x00);
                     g13_render();
                 }
