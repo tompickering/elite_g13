@@ -292,9 +292,44 @@ void assess(json_object *jobj) {
                 const char *val = json_object_get_string(jumptypeobj);
                 if (!strcmp(val, "Hyperspace")) {
                     g13_draw_sentence(60, 2, "JUMPING");
+                    const char* star_class = json_object_get_string(json_object_object_get(jobj, "StarClass"));
                     g13_draw_sentence(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
-                    g13_draw_sentence(4, 20, json_object_get_string(json_object_object_get(jobj, "StarClass")));
-                    g13_set_color(0xff, 0x00, 0x00);
+                    g13_draw_sentence(4, 20, star_class);
+
+                    bool scoopable = false;
+                    bool danger = false;
+
+                    if (   !strcmp(star_class, "O")
+                        || !strcmp(star_class, "B")
+                        || !strcmp(star_class, "A")
+                        || !strcmp(star_class, "F")
+                        || !strcmp(star_class, "G")
+                        || !strcmp(star_class, "K")
+                        || !strcmp(star_class, "M")) {
+                        scoopable = true;
+                    }
+
+                    // White dwarfs
+                    if (   !strcmp(star_class, "D")
+                        || !strcmp(star_class, "DA")
+                        || !strcmp(star_class, "DB")
+                        || !strcmp(star_class, "DC")
+                        || !strcmp(star_class, "DO")
+                        || !strcmp(star_class, "DQ")
+                        || !strcmp(star_class, "DX")) {
+                        danger = true;
+                    }
+
+                    // TODO: Find Neutron classifications
+
+                    if (danger) {
+                        g13_set_color(0xff, 0x00, 0x00);
+                    } else if (scoopable) {
+                        g13_set_color(0x00, 0xff, 0x00);
+                    } else {
+                        g13_set_color(0x00, 0x00, 0xff);
+                    }
+
                     g13_render();
                 }
             }
