@@ -186,12 +186,18 @@ int main(int argc, char** argv) {
     XSetErrorHandler(handle_x11_error);
 
     g13_init();
+    g13_clear_lcd();
+    g13_set_color(0xff, 0x66, 0x00);
+
+    g13_set_img("elite.lpbm");
+    g13_render();
+    sleep(2);
+    g13_clear_lcd();
+    g13_render();
+
     g13_bind_key(G1, g1);
     /*g13_bind_key(ROUND, clear);*/
     /*g13_bind_stick(stick);*/
-    g13_clear_lcd();
-
-    g13_set_color(0xff, 0x66, 0x00);
 
     get_filepath();
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
