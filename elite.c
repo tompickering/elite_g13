@@ -16,8 +16,15 @@ Window win;
 
 unsigned char x, y;
 
-#define KEY_INSERT 118
+#define KEY_A 38
+#define KEY_D 40
+#define KEY_F 41
 #define KEY_L 46
+#define KEY_R 27
+#define KEY_S 39
+#define KEY_W 25
+#define KEY_LSHIFT 50
+#define KEY_INSERT 118
 
 int handle_x11_error(Display* display, XErrorEvent* error){
     fprintf(stderr, "ERROR: X11 error\n");
@@ -36,9 +43,63 @@ void g1(bool pressed) {
     }
 }
 
-void stick(unsigned char new_x, unsigned char new_y) {
-    printf("Stick position: %d %d\n", new_x, new_y);
+// WASD
+void g4(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_W;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+void g10(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_A;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+void g11(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_S;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+void g12(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_D;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
 
+void g15(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_LSHIFT;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+
+void stick(unsigned char new_x, unsigned char new_y) {
+    /*printf("Stick position: %d %d\n", new_x, new_y);*/
+
+    /*
     if (new_x != x || new_y != y) {
         x = new_x;
         y = new_y;
@@ -47,6 +108,61 @@ void stick(unsigned char new_x, unsigned char new_y) {
         g13_draw_circle(2 + (int)(155.f * (float)x / 255.f),
                     2 + (int)(36.f * (float)y / 255.f), 2.);
         g13_render();
+    }
+    */
+
+    XEvent ev;
+    ev.xkey.state = None;
+    ev.xkey.same_screen = True;
+
+    static bool x_l_pressed = false;
+    static bool x_r_pressed = false;
+    static bool y_u_pressed = false;
+    static bool y_d_pressed = false;
+
+    bool x_l_state = new_x < 3;
+    bool x_r_state = new_x > 252;
+    bool y_u_state = new_y < 3;
+    bool y_d_state = new_y > 252;
+
+    if (x_l_state != x_l_pressed) {
+        bool pressed = x_l_state;
+        if (display) {
+            ev.type = pressed ? KeyPress : KeyRelease;
+            ev.xkey.keycode = KEY_A;
+            XSendEvent(display, win, True, KeyPressMask, &ev);
+        }
+        x_l_pressed = x_l_state;
+    }
+
+    if (x_r_state != x_r_pressed) {
+        bool pressed = x_r_state;
+        if (display) {
+            ev.type = pressed ? KeyPress : KeyRelease;
+            ev.xkey.keycode = KEY_D;
+            XSendEvent(display, win, True, KeyPressMask, &ev);
+        }
+        x_r_pressed = x_r_state;
+    }
+
+    if (y_u_state != y_u_pressed) {
+        bool pressed = y_u_state;
+        if (display) {
+            ev.type = pressed ? KeyPress : KeyRelease;
+            ev.xkey.keycode = KEY_R;
+            XSendEvent(display, win, True, KeyPressMask, &ev);
+        }
+        y_u_pressed = y_u_state;
+    }
+
+    if (y_d_state != y_d_pressed) {
+        bool pressed = y_d_state;
+        if (display) {
+            ev.type = pressed ? KeyPress : KeyRelease;
+            ev.xkey.keycode = KEY_F;
+            XSendEvent(display, win, True, KeyPressMask, &ev);
+        }
+        y_d_pressed = y_d_state;
     }
 }
 
@@ -197,7 +313,17 @@ int main(int argc, char** argv) {
 
     g13_bind_key(G1, g1);
     /*g13_bind_key(ROUND, clear);*/
-    /*g13_bind_stick(stick);*/
+
+    g13_bind_stick(stick);
+
+    // WASD
+    g13_bind_key(G4, g4);
+    g13_bind_key(G10, g10);
+    g13_bind_key(G11, g11);
+    g13_bind_key(G12, g12);
+
+    // Boost
+    g13_bind_key(G15, g15);
 
     get_filepath();
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
