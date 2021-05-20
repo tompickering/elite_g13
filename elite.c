@@ -418,20 +418,37 @@ int get_filepath() {
     }
 }
 
+static char remain_str[8];
+static bool jumping = false;
+
 void assess(json_object *jobj) {
     json_object *eventobj = json_object_object_get(jobj, "event");
     if (eventobj) {
         const char *event = json_object_get_string(eventobj);
+
+        if (!strcmp(event, "FSDTarget")) {
+            json_object *remainobj = json_object_object_get(jobj, "RemainingJumpsInRoute");
+            if (remainobj) {
+                const char *remain = json_object_get_string(remainobj);
+                snprintf(remain_str, sizeof(remain_str), "%s", remain);
+                remain_str[sizeof(remain_str) - 1] = '\0';
+            } else {
+                remain_str[0] = '\0';
+            }
+        }
+
         // Hyperspce start
         if (!strcmp(event, "StartJump")) {
             json_object *jumptypeobj = json_object_object_get(jobj, "JumpType");
             if (jumptypeobj) {
                 const char *val = json_object_get_string(jumptypeobj);
                 if (!strcmp(val, "Hyperspace")) {
+                    jumping = true;
                     g13_draw_sentence(60, 2, "JUMPING");
                     const char* star_class = json_object_get_string(json_object_object_get(jobj, "StarClass"));
                     g13_draw_sentence(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
                     g13_draw_sentence(4, 20, star_class);
+                    g13_draw_sentence(4, 30, remain_str);
 
                     bool scoopable = false;
                     bool danger = false;
@@ -472,7 +489,12 @@ void assess(json_object *jobj) {
             }
         }
         // Hyperspace end
-        if (!strcmp(event, "ReceiveText")) {
+        if (jumping && !strcmp(event, "ReceiveText")) {
+            jumping = false;
+            g13_clear_lcd();
+            g13_set_color(0xff, 0x66, 0x00);
+            g13_render();
+            /*
             json_object *jumptypeobj = json_object_object_get(jobj, "Message_Localised");
             if (jumptypeobj) {
                 const char *val = json_object_get_string(jumptypeobj);
@@ -482,6 +504,7 @@ void assess(json_object *jobj) {
                     g13_render();
                 }
             }
+            */
         }
     } else {
     }
@@ -583,6 +606,8 @@ int main(int argc, char** argv) {
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
     printf("File is %s\n", s_filepath);
     FILE* file = fopen(s_filepath, "r");
+
+    remain_str[0] = '\0';
 
     s_tok = json_tokener_new();
 
