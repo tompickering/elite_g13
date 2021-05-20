@@ -472,12 +472,11 @@ void assess(json_object *jobj) {
             }
         }
         // Hyperspace end
-        if (!strcmp(event, "Music")) {
-            json_object *jumptypeobj = json_object_object_get(jobj, "MusicTrack");
+        if (!strcmp(event, "ReceiveText")) {
+            json_object *jumptypeobj = json_object_object_get(jobj, "Message_Localised");
             if (jumptypeobj) {
                 const char *val = json_object_get_string(jumptypeobj);
-                /*if (!strcmp(val, "DestinationFromHyperspace")) {*/
-                if (!strcmp(val, "NoTrack")) {
+                if (!strncmp(val, "Entered Channel:", 16)) {
                     g13_clear_lcd();
                     g13_set_color(0xff, 0x66, 0x00);
                     g13_render();
