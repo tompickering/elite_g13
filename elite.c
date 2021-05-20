@@ -530,42 +530,45 @@ void parse(char* str) {
 
 static int last_position=0;
 int find_new_text(FILE* file) {
-   fseek(file, 0, SEEK_END);
-   int filesize = ftell(file);
+    fseek(file, 0, SEEK_END);
+    int filesize = ftell(file);
 
-   // check if the new file started
-   if(filesize < last_position){
-      last_position=0;
-   }  
-   // read file from last position  untill new line is found 
+    // Check if the new file started
+    if(filesize < last_position){
+        last_position=0;
+    }
 
-   static bool first = true;
+    // Read file from last position until newline is found
 
-   for(int n=last_position;n<filesize;n++) {
-      fseek(file, last_position, SEEK_SET);
-      char *ptr = NULL;
-      size_t n2 = 0;
-      getline(&ptr, &n2, file);
-      if (ptr) {
-          last_position = ftell(file);
-          /*printf("Char: %s Last %d\n", ptr, last_position);*/
+    static bool first = true;
 
-          if (!first) {
-              parse(ptr);
-          }
+    for (int n=last_position; n<filesize; n++) {
+        fseek(file, last_position, SEEK_SET);
+        char *ptr = NULL;
+        size_t n2 = 0;
 
-          // end of file 
-          if(filesize == last_position){
-            return filesize;
-          }
-          free(ptr);
-      }
+        getline(&ptr, &n2, file);
 
-  }
+        if (ptr) {
+            last_position = ftell(file);
+            /*printf("Char: %s Last %d\n", ptr, last_position);*/
 
-   first = false;
+            if (!first) {
+                parse(ptr);
+            }
 
-  return 0;
+            // EOF
+            if (filesize == last_position) {
+                return filesize;
+            }
+            free(ptr);
+        }
+
+    }
+
+    first = false;
+
+    return 0;
 }
 
 int main(int argc, char** argv) {
