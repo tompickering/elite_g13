@@ -539,6 +539,8 @@ int find_new_text(FILE* file) {
    }  
    // read file from last position  untill new line is found 
 
+   static bool first = true;
+
    for(int n=last_position;n<filesize;n++) {
       fseek(file, last_position, SEEK_SET);
       char *ptr = NULL;
@@ -547,7 +549,11 @@ int find_new_text(FILE* file) {
       if (ptr) {
           last_position = ftell(file);
           /*printf("Char: %s Last %d\n", ptr, last_position);*/
-          parse(ptr);
+
+          if (!first) {
+              parse(ptr);
+          }
+
           // end of file 
           if(filesize == last_position){
             return filesize;
@@ -556,6 +562,8 @@ int find_new_text(FILE* file) {
       }
 
   }
+
+   first = false;
 
   return 0;
 }
