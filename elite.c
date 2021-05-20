@@ -120,153 +120,38 @@ int handle_x11_error(Display* display, XErrorEvent* error){
     return 1;
 }
 
-void g1(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        //ev.xkey.state = ShiftMask;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_INSERT;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
+void key_handler(int k, bool pressed) {
+    if (!display) {
+        return;
     }
-}
 
-void g20(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        //ev.xkey.state = ShiftMask;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_LCTRL;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
+    XEvent ev;
+    ev.type = pressed ? KeyPress : KeyRelease;
+    ev.xkey.state = None;
+    ev.xkey.keycode = KEY_ESC;
+    ev.xkey.same_screen = True;
 
-void g22(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        //ev.xkey.state = ShiftMask;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_SPACE;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
+    KeyCode *c = &ev.xkey.keycode;
+    if (k == G1 ) *c = KEY_INSERT;
+    if (k == G3 ) *c = KEY_Q;
+    if (k == G4 ) *c = KEY_W;
+    if (k == G5 ) *c = KEY_E;
+    if (k == G10) *c = KEY_A;
+    if (k == G11) *c = KEY_S;
+    if (k == G12) *c = KEY_D;
+    if (k == G15) *c = KEY_LSHIFT;
+    if (k == G20) *c = KEY_LCTRL;
+    if (k == G22) *c = KEY_SPACE;
 
-// WASD
-void g4(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_W;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void g10(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_A;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void g11(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_S;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void g12(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_D;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
+    if (k == M1 ) *c = KEY_1;
+    if (k == M2 ) *c = KEY_2;
+    if (k == M3 ) *c = KEY_3;
+    if (k == MR ) *c = KEY_4;
 
-void g3(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_Q;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void g5(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_E;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
+    if (k == CLICK1) *c = KEY_BACKSPACE;
+    if (k == CLICK2) *c = KEY_BACKSPACE;
 
-void g15(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_LSHIFT;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-
-void m1(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_1;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void m2(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_2;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void m3(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_3;
-        ev.xkey.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-}
-void mr(bool pressed) {
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? KeyPress : KeyRelease;
-        ev.xkey.state = None;
-        ev.xkey.keycode = KEY_4;
-        ev.xkey.same_screen = True;
+    if (ev.xkey.keycode != KEY_ESC) {
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
 }
@@ -579,39 +464,19 @@ int main(int argc, char** argv) {
     g13_clear_lcd();
     g13_set_color(0xff, 0x66, 0x00);
 
+    g13_bind_all_keys(key_handler);
+    g13_bind_stick(stick);
+
     g13_set_img("elite.lpbm");
     g13_render();
     sleep(2);
     g13_clear_lcd();
     g13_render();
 
-    g13_bind_key(G1, g1);
-    g13_bind_key(G20, g20);
-    g13_bind_key(G22, g22);
-    /*g13_bind_key(ROUND, clear);*/
-
-    g13_bind_stick(stick);
-
-    // WASD
-    g13_bind_key(G4, g4);
-    g13_bind_key(G10, g10);
-    g13_bind_key(G11, g11);
-    g13_bind_key(G12, g12);
-
-    g13_bind_key(G3, g3);
-    g13_bind_key(G5, g5);
-
-    // M keys
-    g13_bind_key(M1, m1);
-    g13_bind_key(M2, m2);
-    g13_bind_key(M3, m3);
-    g13_bind_key(MR, mr);
-
-    // Boost
-    g13_bind_key(G15, g15);
-
+    /*
     g13_bind_key(CLICK1, click1);
     g13_bind_key(CLICK2, click2);
+    */
 
     get_filepath();
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
