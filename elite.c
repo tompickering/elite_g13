@@ -534,7 +534,7 @@ int find_new_text(FILE* file) {
     int filesize = ftell(file);
 
     // Check if the new file started
-    if(filesize < last_position){
+    if (filesize < last_position) {
         last_position=0;
     }
 
