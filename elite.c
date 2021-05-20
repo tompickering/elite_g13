@@ -20,17 +20,100 @@ unsigned char x, y;
 #define KEY_2 11
 #define KEY_3 12
 #define KEY_4 13
+#define KEY_5 14
+#define KEY_6 15
+#define KEY_7 16
+#define KEY_8 17
+#define KEY_9 18
+#define KEY_9 19
+#define KEY_0 20
 #define KEY_A 38
+#define KEY_B 56
+#define KEY_C 54
 #define KEY_D 40
 #define KEY_E 26
 #define KEY_F 41
+#define KEY_G 42
+#define KEY_H 43
+#define KEY_I 31
+#define KEY_J 44
+#define KEY_K 45
 #define KEY_L 46
+#define KEY_M 58
+#define KEY_N 57
+#define KEY_O 32
+#define KEY_P 33
 #define KEY_Q 24
 #define KEY_R 27
 #define KEY_S 39
+#define KEY_T 28
+#define KEY_U 30
+#define KEY_V 55
 #define KEY_W 25
+#define KEY_X 53
+#define KEY_Y 29
+#define KEY_Z 52
+#define KEY_MINUS 20
+#define KEY_EQUALS 21
+#define KEY_BACKSPACE 22
+#define KEY_LCTRL 37
+#define KEY_RCTRL 105
+#define KEY_LALT 64
+#define KEY_RALT 108
+#define KEY_HASH 51
+#define KEY_APOS 48
+#define KEY_SEMICOLON 47
+#define KEY_LBRACE 34
+#define KEY_RBRACE 35
 #define KEY_LSHIFT 50
+#define KEY_RSHIFT 36
+#define KEY_SPACE 65
 #define KEY_INSERT 118
+#define KEY_HOME 110
+#define KEY_DEL 119
+#define KEY_END 115
+#define KEY_PGUP 112
+#define KEY_PGDOWN 117
+#define KEY_TICK 49
+#define KEY_TAB 23
+#define KEY_LWIN 133
+#define KEY_RWIN 134
+#define KEY_UP 111
+#define KEY_DOWN 116
+#define KEY_LEFT 113
+#define KEY_RIGHT 114
+#define KEY_PAUSE 127
+#define KEY_PRSCR 107
+#define KEY_BACKSLASH 94
+#define KEY_COMMA 59
+#define KEY_PERIOD 60
+#define KEY_SLASH 61
+#define KEY_CAL 148
+#define KEY_MUTE 121
+#define KEY_VOLDOWN 122
+#define KEY_VOLUP 123
+#define KEY_ESC 9
+#define KEY_CAPS 66
+#define KEY_SCROLL 78
+
+#define KEY_NUM0 90
+#define KEY_NUM1 87
+#define KEY_NUM2 88
+#define KEY_NUM3 89
+#define KEY_NUM4 83
+#define KEY_NUM5 84
+#define KEY_NUM6 85
+#define KEY_NUM7 79
+#define KEY_NUM8 80
+#define KEY_NUM9 81
+#define KEY_NUMENTER 104
+#define KEY_NUMPERIOD 91
+#define KEY_NUMPLUS 86
+#define KEY_NUMMINUS 82
+#define KEY_NUMSTAR 63
+#define KEY_NUMDIV 106
+#define KEY_NUM 77
+
 
 int handle_x11_error(Display* display, XErrorEvent* error){
     fprintf(stderr, "ERROR: X11 error\n");
@@ -44,6 +127,30 @@ void g1(bool pressed) {
         //ev.xkey.state = ShiftMask;
         ev.xkey.state = None;
         ev.xkey.keycode = KEY_INSERT;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+
+void g20(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        //ev.xkey.state = ShiftMask;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_LCTRL;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+
+void g22(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        //ev.xkey.state = ShiftMask;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_SPACE;
         ev.xkey.same_screen = True;
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
@@ -159,6 +266,36 @@ void mr(bool pressed) {
         ev.type = pressed ? KeyPress : KeyRelease;
         ev.xkey.state = None;
         ev.xkey.keycode = KEY_4;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+
+void click1(bool pressed) {
+    /*
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? ButtonPress : ButtonRelease;
+        ev.xbutton.button = 1;
+        ev.xbutton.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+    */
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_BACKSPACE;
+        ev.xkey.same_screen = True;
+        XSendEvent(display, win, True, KeyPressMask, &ev);
+    }
+}
+void click2(bool pressed) {
+    if (display) {
+        XEvent ev;
+        ev.type = pressed ? KeyPress : KeyRelease;
+        ev.xkey.state = None;
+        ev.xkey.keycode = KEY_BACKSPACE;
         ev.xkey.same_screen = True;
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
@@ -339,7 +476,8 @@ void assess(json_object *jobj) {
             json_object *jumptypeobj = json_object_object_get(jobj, "MusicTrack");
             if (jumptypeobj) {
                 const char *val = json_object_get_string(jumptypeobj);
-                if (!strcmp(val, "DestinationFromHyperspace")) {
+                /*if (!strcmp(val, "DestinationFromHyperspace")) {*/
+                if (!strcmp(val, "NoTrack")) {
                     g13_clear_lcd();
                     g13_set_color(0xff, 0x66, 0x00);
                     g13_render();
@@ -415,6 +553,8 @@ int main(int argc, char** argv) {
     g13_render();
 
     g13_bind_key(G1, g1);
+    g13_bind_key(G20, g20);
+    g13_bind_key(G22, g22);
     /*g13_bind_key(ROUND, clear);*/
 
     g13_bind_stick(stick);
@@ -436,6 +576,9 @@ int main(int argc, char** argv) {
 
     // Boost
     g13_bind_key(G15, g15);
+
+    g13_bind_key(CLICK1, click1);
+    g13_bind_key(CLICK2, click2);
 
     get_filepath();
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
