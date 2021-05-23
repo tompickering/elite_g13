@@ -120,6 +120,15 @@ int handle_x11_error(Display* display, XErrorEvent* error){
     return 1;
 }
 
+void reset_screen(bool img) {
+    g13_clear_lcd();
+    g13_set_color(0xff, 0x66, 0x00);
+    if (img) {
+        g13_set_img("elite.lpbm");
+    }
+    g13_render();
+}
+
 void key_handler(int k, bool pressed) {
     if (!display) {
         return;
@@ -133,14 +142,17 @@ void key_handler(int k, bool pressed) {
 
     KeyCode *c = &ev.xkey.keycode;
     if (k == G1 ) *c = KEY_INSERT;
+    if (k == G2 ) *c = KEY_DEL;
     if (k == G3 ) *c = KEY_Q;
     if (k == G4 ) *c = KEY_W;
     if (k == G5 ) *c = KEY_E;
+    if (k == G7 ) *c = KEY_HOME;
     if (k == G10) *c = KEY_A;
     if (k == G11) *c = KEY_S;
     if (k == G12) *c = KEY_D;
     if (k == G15) *c = KEY_LSHIFT;
     if (k == G20) *c = KEY_LCTRL;
+    if (k == G21) *c = KEY_END;
     if (k == G22) *c = KEY_SPACE;
 
     if (k == M1 ) *c = KEY_1;
@@ -150,6 +162,16 @@ void key_handler(int k, bool pressed) {
 
     if (k == CLICK1) *c = KEY_BACKSPACE;
     if (k == CLICK2) *c = KEY_BACKSPACE;
+
+    static bool silent_running = false;
+    if (pressed && k == G21) {
+        silent_running = !silent_running;
+        if (silent_running) {
+            g13_set_color(0, 0, 0);
+        } else {
+            reset_screen(true);
+        }
+    }
 
     if (ev.xkey.keycode != KEY_ESC) {
         XSendEvent(display, win, True, KeyPressMask, &ev);
@@ -256,11 +278,6 @@ void stick(unsigned char new_x, unsigned char new_y) {
     }
 }
 
-void clear() {
-    g13_clear_lcd();
-    g13_render();
-}
-
 char s_filepath[4096];
 
 int get_filepath() {
@@ -329,6 +346,7 @@ void assess(json_object *jobj) {
                 const char *val = json_object_get_string(jumptypeobj);
                 if (!strcmp(val, "Hyperspace")) {
                     jumping = true;
+                    g13_clear_lcd();
                     g13_draw_sentence(60, 2, "JUMPING");
                     const char* star_class = json_object_get_string(json_object_object_get(jobj, "StarClass"));
                     g13_draw_sentence(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
@@ -376,9 +394,7 @@ void assess(json_object *jobj) {
         // Hyperspace end
         if (jumping && !strcmp(event, "ReceiveText")) {
             jumping = false;
-            g13_clear_lcd();
-            g13_set_color(0xff, 0x66, 0x00);
-            g13_render();
+            reset_screen(true);
             /*
             json_object *jumptypeobj = json_object_object_get(jobj, "Message_Localised");
             if (jumptypeobj) {
@@ -461,17 +477,11 @@ int main(int argc, char** argv) {
     XSetErrorHandler(handle_x11_error);
 
     g13_init();
-    g13_clear_lcd();
-    g13_set_color(0xff, 0x66, 0x00);
 
     g13_bind_all_keys(key_handler);
     g13_bind_stick(stick);
 
-    g13_set_img("elite.lpbm");
-    g13_render();
-    sleep(2);
-    g13_clear_lcd();
-    g13_render();
+    reset_screen(true);
 
     /*
     g13_bind_key(CLICK1, click1);
@@ -494,6 +504,9 @@ int main(int argc, char** argv) {
         find_new_text(file);
         usleep(10000);
     }
+
+    g13_clear_lcd();
+    g13_render();
 
     json_tokener_free(s_tok);
 
