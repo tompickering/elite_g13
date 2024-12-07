@@ -299,17 +299,6 @@ void assess(json_object *jobj) {
         if (jumping && !strcmp(event, "ReceiveText")) {
             jumping = false;
             reset_screen(true);
-            /*
-            json_object *jumptypeobj = json_object_object_get(jobj, "Message_Localised");
-            if (jumptypeobj) {
-                const char *val = json_object_get_string(jumptypeobj);
-                if (!strncmp(val, "Entered Channel:", 16)) {
-                    g13_clear_lcd();
-                    g13_set_color(0xff, 0x66, 0x00);
-                    g13_render();
-                }
-            }
-            */
         }
 
 	if (!strcmp(event, "DockingGranted")) {
