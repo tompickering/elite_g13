@@ -202,13 +202,13 @@ int get_filepath() {
         struct stat stbuf ;
         char filename_qfd[4096];
         sprintf(filename_qfd , "%s/%s",dir,dp->d_name) ;
-        if( stat(filename_qfd, &stbuf ) == -1 )
+        if (stat(filename_qfd, &stbuf) == -1)
         {
             printf("Unable to stat file: %s\n",filename_qfd) ;
             continue ;
         }
 
-        if ( ( stbuf.st_mode & S_IFMT ) == S_IFDIR )
+        if ((stbuf.st_mode & S_IFMT) == S_IFDIR)
         {
             continue;
             // Skip directories
