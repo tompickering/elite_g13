@@ -44,7 +44,7 @@ void key_handler(int k, bool pressed) {
     ev.xkey.keycode = KEY_ESC;
     ev.xkey.same_screen = True;
 
-    KeyCode *c = &ev.xkey.keycode;
+    unsigned int *c = &ev.xkey.keycode;
     if (k == G1 ) *c = KEY_INSERT;
     if (k == G2 ) *c = KEY_DEL;
     if (k == G3 ) *c = KEY_Q;
