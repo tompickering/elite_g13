@@ -311,6 +311,26 @@ void assess(json_object *jobj) {
             }
             */
         }
+
+	if (!strcmp(event, "DockingGranted")) {
+	    const char* landing_pad = json_object_get_string(json_object_object_get(jobj, "LandingPad"));
+	    g13_clear_lcd();
+	    g13_set_color(0x00, 0xff, 0x00);
+	    g13_draw_sentence(60, 2, "GRANTED");
+	    g13_draw_sentence(4, 10, landing_pad);
+	    g13_render();
+	}
+
+	if (!strcmp(event, "DockingDenied")) {
+	    g13_clear_lcd();
+	    g13_set_color(0xff, 0x00, 0x00);
+	    g13_draw_sentence(60, 2, "DENIED");
+	    g13_render();
+	}
+
+	if (!strcmp(event, "Docked") || !strcmp(event, "DockingCancelled") || !strcmp(event, "DockingTimeout")) {
+		reset_screen(true);
+	}
     } else {
     }
 }
