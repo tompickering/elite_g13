@@ -8,11 +8,13 @@ function is_in(t, val)
     return false
 end
 
+function reset(t) reset_lcd() end
+
 stars_scoopable = {'O', 'B', 'A', 'F', 'G', 'K', 'M'}
 stars_danger = {'D', 'DA', 'DB', 'DC', 'DO', 'DQ', 'DX'}
 
-function reset(t) reset_lcd() end
-
+row = 0
+jumping = false
 jumps_remaining = 0
 
 function FSDTarget(t)
@@ -21,6 +23,8 @@ end
 
 function StartJump(t)
     if t['JumpType'] == 'Hyperspace' then
+        jumping = true
+
         star_system = t['StarSystem']
         star_class = t['StarClass']
 
@@ -39,6 +43,19 @@ function StartJump(t)
         draw_string(4, 10, star_system)
         draw_string(4, 20, star_class)
         draw_string(4, 30, tjumps_remaining_str)
+    end
+end
+
+function FSSSignalDiscovered(t)
+    if jumping then
+        jumping = false
+        row = 0
+        reset_lcd()
+    end
+
+    if t['IsStation'] then
+        draw_string(4, 2 + 10*row, 'STATION: ' .. t['SignalType'])
+        row = row + 1
     end
 end
 
