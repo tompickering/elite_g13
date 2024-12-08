@@ -55,7 +55,7 @@ function StartJump(t)
         draw_string(60, 2, "JUMPING");
         draw_string(4, 10, star_system)
         draw_string(4, 20, star_class)
-        draw_string(4, 30, 'JUMPS: ', jumps_remaining_str)
+        draw_string(4, 30, 'JUMPS: ' .. jumps_remaining_str)
     end
 end
 
