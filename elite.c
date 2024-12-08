@@ -25,12 +25,12 @@ lua_State *L;
 
 unsigned char x, y;
 
-void reset_screen(bool);
+void reset_lcd(bool);
 
 // *** LUA BINDINGS ***
 
-int LUAWRAPPER_reset_screen(lua_State *L) {
-    reset_screen(false);
+int LUAWRAPPER_reset_lcd(lua_State *L) {
+    reset_lcd(false);
     return 0;
 }
 
@@ -71,7 +71,7 @@ int handle_x11_error(Display* display, XErrorEvent* error){
     return 1;
 }
 
-void reset_screen(bool img) {
+void reset_lcd(bool img) {
     g13_clear_lcd();
     g13_set_color(0xff, 0x66, 0x00);
     if (img) {
@@ -120,7 +120,7 @@ void key_handler(int k, bool pressed) {
         if (silent_running) {
             g13_set_color(0, 0, 0);
         } else {
-            reset_screen(true);
+            reset_lcd(true);
         }
     }
 
@@ -368,7 +368,7 @@ void assess(json_object *jobj) {
         // Hyperspace end
         if (jumping && !strcmp(event, "ReceiveText")) {
             jumping = false;
-            reset_screen(true);
+            reset_lcd(true);
         }
 
 	if (!strcmp(event, "DockingGranted")) {
@@ -393,7 +393,7 @@ void assess(json_object *jobj) {
 	if (!strcmp(event, "Docked")
          || !strcmp(event, "DockingCancelled")
          || !strcmp(event, "DockingTimeout")) {
-		reset_screen(true);
+		reset_lcd(true);
 	}
     } else {
     }
@@ -481,8 +481,8 @@ int init_lua() {
 
     lua_pcall(L, 0, 0, 0);
 
-    lua_pushcfunction(L, LUAWRAPPER_reset_screen);
-    lua_setglobal(L, "reset_screen");
+    lua_pushcfunction(L, LUAWRAPPER_reset_lcd);
+    lua_setglobal(L, "reset_lcd");
     lua_pushcfunction(L, LUAWRAPPER_g13_clear_lcd);
     lua_setglobal(L, "clear_lcd");
     lua_pushcfunction(L, LUAWRAPPER_g13_set_color);
@@ -511,7 +511,7 @@ int main(int argc, char** argv) {
     g13_bind_all_keys(key_handler);
     g13_bind_stick(stick);
 
-    reset_screen(true);
+    reset_lcd(true);
 
     /*
     g13_bind_key(CLICK1, click1);

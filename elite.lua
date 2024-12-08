@@ -1,5 +1,5 @@
 function reset(t)
-    reset_screen()
+    reset_lcd()
 end
 
 function DockingGranted(t)
