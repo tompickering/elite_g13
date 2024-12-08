@@ -185,12 +185,13 @@ void stick(unsigned char new_x, unsigned char new_y) {
 
 char s_filepath[4096];
 
-int get_filepath() {
+int get_filepath(const char* dir) {
     struct dirent *dp;
     DIR *dfd;
 
-    char *dir ;
-    dir = "/home/tom/games/elite_log/" ;
+    if (dir == NULL) {
+        dir = "/home/tom/games/elite_log/";
+    }
 
     if ((dfd = opendir(dir)) == NULL) {
         fprintf(stderr, "Can't open %s\n", dir);
@@ -407,7 +408,14 @@ int main(int argc, char** argv) {
     g13_bind_key(CLICK2, click2);
     */
 
-    get_filepath();
+    char *dir = NULL;
+
+    if (argc > 1)
+    {
+        dir = argv[1];
+    }
+
+    get_filepath(dir);
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
     printf("File is %s\n", s_filepath);
     FILE* file = fopen(s_filepath, "r");
