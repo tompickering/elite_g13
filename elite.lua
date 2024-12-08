@@ -8,14 +8,27 @@ function is_in(t, val)
     return false
 end
 
-function reset(t) reset_lcd() end
-
 stars_scoopable = {'O', 'B', 'A', 'F', 'G', 'K', 'M'}
 stars_danger = {'D', 'DA', 'DB', 'DC', 'DO', 'DQ', 'DX'}
 
 row = 0
+ship = ''
 jumping = false
 jumps_remaining = 0
+
+function reset(t)
+    jumping = false
+    row = 0
+    reset_lcd()
+end
+
+function LoadGame(t)
+    ship = t['Ship']
+end
+
+function ShipyardSwap(t)
+    ship = t['ShipType']
+end
 
 function FSDTarget(t)
     jumps_remaining = t['RemainingJumpsInRoute']
@@ -42,7 +55,7 @@ function StartJump(t)
         draw_string(60, 2, "JUMPING");
         draw_string(4, 10, star_system)
         draw_string(4, 20, star_class)
-        draw_string(4, 30, tjumps_remaining_str)
+        draw_string(4, 30, 'JUMPS: ', jumps_remaining_str)
     end
 end
 
@@ -54,8 +67,14 @@ function FSSSignalDiscovered(t)
     end
 
     if t['IsStation'] then
-        draw_string(4, 2 + 10*row, 'STATION: ' .. t['SignalType'])
-        row = row + 1
+        signal_type = t['SignalType']
+        if signal_type == 'FleetCarrier' then
+            -- I generally don't care, but useful to know there's one there
+            set_color(0xff, 0x00, 0xff)
+        else
+            draw_string(4, 2 + 10*row, 'STATION: ' .. signal_type)
+            row = row + 1
+        end
     end
 end
 
@@ -76,6 +95,8 @@ function DockingDenied(t)
     draw_string_scaled(28, 10, "DENIED", 3)
 end
 
+SupercruiseExit = reset
+SupercruiseDestinationDrop = reset
 Docked = reset
 DockingCancelled = reset
 DockingTimeout = reset
