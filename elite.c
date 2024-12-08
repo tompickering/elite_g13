@@ -12,13 +12,47 @@
 
 #include <libg13.h>
 
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+
 #include "keydefs.h"
 
 Display *display;
 Window win;
 
+lua_State *L;
+
 unsigned char x, y;
 
+// *** LUA BINDINGS ***
+
+int LUAWRAPPER_g13_set_color(lua_State *L) {
+    int r = luaL_checkinteger(L, 1);
+    int g = luaL_checkinteger(L, 2);
+    int b = luaL_checkinteger(L, 3);
+    g13_set_color(r, g, b);
+    return 0;
+}
+
+int LUAWRAPPER_g13_draw_string(lua_State *L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    const char* str = luaL_checkstring(L, 3);
+    g13_draw_string(x, y, str);
+    return 0;
+}
+
+int LUAWRAPPER_g13_draw_string_scaled(lua_State *L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    const char* str = luaL_checkstring(L, 3);
+    int scale = luaL_checkinteger(L, 4);
+    g13_draw_string_scaled(x, y, str, scale);
+    return 0;
+}
+
+///////////////////////
 
 int handle_x11_error(Display* display, XErrorEvent* error){
     fprintf(stderr, "ERROR: X11 error\n");
@@ -211,6 +245,18 @@ void assess(json_object *jobj) {
     if (eventobj) {
         const char *event = json_object_get_string(eventobj);
 
+        if (event != NULL && strnlen(event, 1) > 0) {
+            lua_getglobal(L, event);
+
+            if (lua_isfunction(L, -1)) {
+                lua_pushnumber(L, 0);
+                lua_pcall(L, 1, 1, 0);
+                g13_render();
+            }
+        }
+
+        return;
+
         if (!strcmp(event, "FSDTarget")) {
             json_object *remainobj = json_object_object_get(jobj, "RemainingJumpsInRoute");
             if (remainobj) {
@@ -230,11 +276,11 @@ void assess(json_object *jobj) {
                 if (!strcmp(val, "Hyperspace")) {
                     jumping = true;
                     g13_clear_lcd();
-                    g13_draw_sentence(60, 2, "JUMPING");
+                    g13_draw_string(60, 2, "JUMPING");
                     const char* star_class = json_object_get_string(json_object_object_get(jobj, "StarClass"));
-                    g13_draw_sentence(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
-                    g13_draw_sentence(4, 20, star_class);
-                    g13_draw_sentence(4, 30, remain_str);
+                    g13_draw_string(4, 10, json_object_get_string(json_object_object_get(jobj, "StarSystem")));
+                    g13_draw_string(4, 20, star_class);
+                    g13_draw_string(4, 30, remain_str);
 
                     bool scoopable = false;
                     bool danger = false;
@@ -287,15 +333,15 @@ void assess(json_object *jobj) {
             snprintf(pad_formatted, sizeof(pad_formatted), "%02d", pad_number);
 	    g13_clear_lcd();
 	    g13_set_color(0x00, 0xff, 0x00);
-            g13_draw_sentence_scaled(36, 2, "GRANTED", 2);
-	    g13_draw_sentence_scaled(60, 18, pad_formatted, 3);
+            g13_draw_string_scaled(36, 2, "GRANTED", 2);
+	    g13_draw_string_scaled(60, 18, pad_formatted, 3);
 	    g13_render();
 	}
 
 	if (!strcmp(event, "DockingDenied")) {
 	    g13_clear_lcd();
 	    g13_set_color(0xff, 0x00, 0x00);
-            g13_draw_sentence_scaled(28, 10, "DENIED", 3);
+            g13_draw_string_scaled(28, 10, "DENIED", 3);
 	    g13_render();
 	}
 
@@ -369,7 +415,43 @@ int find_new_text(FILE* file) {
     return 0;
 }
 
+int init_lua() {
+    int status;
+
+    L= NULL;
+
+    L = luaL_newstate();
+
+    if (L == NULL) {
+        return 1;
+    }
+
+    luaL_openlibs(L);
+
+    status = luaL_loadfile(L, "elite.lua");
+
+    if (status != LUA_OK) {
+        return 1;
+    }
+
+    lua_pcall(L, 0, 0, 0);
+
+    lua_pushcfunction(L, LUAWRAPPER_g13_set_color);
+    lua_setglobal(L, "set_color");
+    lua_pushcfunction(L, LUAWRAPPER_g13_draw_string);
+    lua_setglobal(L, "draw_string");
+    lua_pushcfunction(L, LUAWRAPPER_g13_draw_string_scaled);
+    lua_setglobal(L, "draw_string_scaled");
+
+    return 0;
+}
+
 int main(int argc, char** argv) {
+    if (init_lua() != 0) {
+        printf("COULD NOT INITIALISE LUA\n");
+        return 1;
+    }
+
     display = XOpenDisplay(NULL);
     XSetErrorHandler(handle_x11_error);
 
@@ -422,6 +504,7 @@ int main(int argc, char** argv) {
     g13_render();
 
     json_tokener_free(s_tok);
+    lua_close(L);
 
     return 0;
 }
