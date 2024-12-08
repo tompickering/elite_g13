@@ -248,6 +248,23 @@ void lua_push_json(json_object *jobj) {
             case json_type_object:
                 lua_push_json(val);
                 break;
+            case json_type_null:
+                lua_pushnil(L);
+                break;
+            case json_type_boolean:
+                lua_pushboolean(L, json_object_get_boolean(val));
+                break;
+            case json_type_double:
+                lua_pushnumber(L, json_object_get_double(val));
+                break;
+            case json_type_int:
+                lua_pushinteger(L, json_object_get_int(val));
+                break;
+            case json_type_array:
+                printf("No support for arrays!\n");
+                exit(1);
+                break;
+            case json_type_string:
             default:
                 lua_pushstring(L, json_object_get_string(val));
                 break;
