@@ -240,6 +240,22 @@ int get_filepath(const char* dir) {
 static char remain_str[8];
 static bool jumping = false;
 
+void lua_push_json(json_object *jobj) {
+    lua_newtable(L);
+    json_object_object_foreach(jobj, key, val) {
+        lua_pushstring(L, key);
+        switch (json_object_get_type(val)) {
+            case json_type_object:
+                lua_push_json(val);
+                break;
+            default:
+                lua_pushstring(L, json_object_get_string(val));
+                break;
+        }
+        lua_settable(L, -3);
+    }
+}
+
 void assess(json_object *jobj) {
     json_object *eventobj = json_object_object_get(jobj, "event");
     if (eventobj) {
@@ -249,8 +265,8 @@ void assess(json_object *jobj) {
             lua_getglobal(L, event);
 
             if (lua_isfunction(L, -1)) {
-                lua_pushnumber(L, 0);
-                lua_pcall(L, 1, 1, 0);
+                lua_push_json(jobj);
+                lua_pcall(L, 1, 0, 0);
                 g13_render();
             }
         }
