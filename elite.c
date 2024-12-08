@@ -84,15 +84,6 @@ void key_handler(int k, bool pressed) {
 }
 
 void click1(bool pressed) {
-    /*
-    if (display) {
-        XEvent ev;
-        ev.type = pressed ? ButtonPress : ButtonRelease;
-        ev.xbutton.button = 1;
-        ev.xbutton.same_screen = True;
-        XSendEvent(display, win, True, KeyPressMask, &ev);
-    }
-    */
     if (display) {
         XEvent ev;
         ev.type = pressed ? KeyPress : KeyRelease;
