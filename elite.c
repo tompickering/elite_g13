@@ -373,7 +373,9 @@ int main(int argc, char** argv) {
     display = XOpenDisplay(NULL);
     XSetErrorHandler(handle_x11_error);
 
-    g13_init();
+    if (g13_init() != 0) {
+        printf("COULD NOT INITIALISE G13\n");
+    }
 
     g13_bind_all_keys(key_handler);
     g13_bind_stick(stick);
@@ -392,8 +394,15 @@ int main(int argc, char** argv) {
         dir = argv[1];
     }
 
+    s_filepath[0] = '\0';
     get_filepath(dir);
     /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
+
+    if (s_filepath[0] == '\0') {
+        printf("Could not find a journal file\n");
+        return 1;
+    }
+
     printf("File is %s\n", s_filepath);
     FILE* file = fopen(s_filepath, "r");
 
