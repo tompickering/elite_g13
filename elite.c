@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -303,17 +304,20 @@ void assess(json_object *jobj) {
 
 	if (!strcmp(event, "DockingGranted")) {
 	    const char* landing_pad = json_object_get_string(json_object_object_get(jobj, "LandingPad"));
+            int pad_number = atoi(landing_pad);
+            char pad_formatted[4];
+            snprintf(pad_formatted, sizeof(pad_formatted), "%02d", pad_number);
 	    g13_clear_lcd();
 	    g13_set_color(0x00, 0xff, 0x00);
-	    g13_draw_sentence(60, 2, "GRANTED");
-	    g13_draw_sentence(4, 10, landing_pad);
+            g13_draw_sentence_scaled(36, 2, "GRANTED", 2);
+	    g13_draw_sentence_scaled(60, 18, pad_formatted, 3);
 	    g13_render();
 	}
 
 	if (!strcmp(event, "DockingDenied")) {
 	    g13_clear_lcd();
 	    g13_set_color(0xff, 0x00, 0x00);
-	    g13_draw_sentence(60, 2, "DENIED");
+            g13_draw_sentence_scaled(28, 10, "DENIED", 3);
 	    g13_render();
 	}
 
