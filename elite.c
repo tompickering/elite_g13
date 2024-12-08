@@ -105,20 +105,6 @@ void click2(bool pressed) {
 }
 
 void stick(unsigned char new_x, unsigned char new_y) {
-    /*printf("Stick position: %d %d\n", new_x, new_y);*/
-
-    /*
-    if (new_x != x || new_y != y) {
-        x = new_x;
-        y = new_y;
-        g13_set_color(x, 255, 255 - x);
-        g13_clear_lcd();
-        g13_draw_circle(2 + (int)(155.f * (float)x / 255.f),
-                    2 + (int)(36.f * (float)y / 255.f), 2.);
-        g13_render();
-    }
-    */
-
     XEvent ev;
     ev.xkey.state = None;
     ev.xkey.same_screen = True;
