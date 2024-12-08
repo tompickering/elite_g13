@@ -321,7 +321,9 @@ void assess(json_object *jobj) {
 	    g13_render();
 	}
 
-	if (!strcmp(event, "Docked") || !strcmp(event, "DockingCancelled") || !strcmp(event, "DockingTimeout")) {
+	if (!strcmp(event, "Docked")
+         || !strcmp(event, "DockingCancelled")
+         || !strcmp(event, "DockingTimeout")) {
 		reset_screen(true);
 	}
     } else {
