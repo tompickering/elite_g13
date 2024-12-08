@@ -25,7 +25,19 @@ lua_State *L;
 
 unsigned char x, y;
 
+void reset_screen(bool);
+
 // *** LUA BINDINGS ***
+
+int LUAWRAPPER_reset_screen(lua_State *L) {
+    reset_screen(false);
+    return 0;
+}
+
+int LUAWRAPPER_g13_clear_lcd(lua_State *L) {
+    g13_clear_lcd();
+    return 0;
+}
 
 int LUAWRAPPER_g13_set_color(lua_State *L) {
     int r = luaL_checkinteger(L, 1);
@@ -469,6 +481,10 @@ int init_lua() {
 
     lua_pcall(L, 0, 0, 0);
 
+    lua_pushcfunction(L, LUAWRAPPER_reset_screen);
+    lua_setglobal(L, "reset_screen");
+    lua_pushcfunction(L, LUAWRAPPER_g13_clear_lcd);
+    lua_setglobal(L, "clear_lcd");
     lua_pushcfunction(L, LUAWRAPPER_g13_set_color);
     lua_setglobal(L, "set_color");
     lua_pushcfunction(L, LUAWRAPPER_g13_draw_string);
