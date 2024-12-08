@@ -190,7 +190,7 @@ int get_filepath(const char* dir) {
     DIR *dfd;
 
     if (dir == NULL) {
-        dir = "/home/tom/games/elite_log/";
+        dir = "/home/tom/games/elite_log";
     }
 
     if ((dfd = opendir(dir)) == NULL) {
@@ -220,7 +220,7 @@ int get_filepath(const char* dir) {
             if (!strncmp(dp->d_name, "Journal.", 8) && stbuf.st_mtime > max_t)
             {
                 max_t = stbuf.st_mtime;
-                sprintf(s_filepath, "%s%s", dir, dp->d_name) ;
+                sprintf(s_filepath, "%s/%s", dir, dp->d_name) ;
             }
         }
     }
