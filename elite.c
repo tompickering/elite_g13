@@ -273,8 +273,8 @@ void lua_push_json(json_object *jobj) {
                 lua_pushinteger(L, json_object_get_int(val));
                 break;
             case json_type_array:
-                printf("No support for arrays!\n");
-                exit(1);
+                printf("No support for arrays! Key: %s\n", key);
+                lua_pushnil(L);
                 break;
             case json_type_string:
             default:
