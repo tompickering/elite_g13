@@ -316,6 +316,9 @@ void parse(char* str) {
         assess(jobj);
     } else {
         fprintf(stderr, "Error: %s\n", json_tokener_error_desc(jerr));
+        // The tokener can end up in a confused state - refresh so we can continue working
+        json_tokener_free(s_tok);
+        s_tok = json_tokener_new();
         // Handle errors, as appropriate for your application.
     }
 }
