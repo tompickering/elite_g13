@@ -101,8 +101,29 @@ function DockingDenied(t)
     draw_string_scaled(28, 10, "DENIED", 3)
 end
 
+function Docked(t)
+    clear()
+
+    allegiance = t['StationAllegiance']
+    economies = t['StationEconomies']
+    services = t['StationServices']
+
+    if allegiance == 'Federation' then
+        set_color(0xff, 0x66, 0x00)
+    elseif allegiance == 'Empire' then
+        set_color(0x00, 0x00, 0xff)
+    elseif allegiance == 'Alliance' then
+        set_color(0x00, 0xff, 0x00)
+    else
+        set_color(0xff, 0xff, 0xff)
+    end
+
+    for k, v in ipairs(services) do
+        print(tostring(k) .. " : " .. tostring(v))
+    end
+end
+
 SupercruiseExit = reset
 SupercruiseDestinationDrop = reset
-Docked = reset
 DockingCancelled = reset
 DockingTimeout = reset
