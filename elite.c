@@ -203,36 +203,55 @@ void stick(unsigned char new_x, unsigned char new_y) {
     }
 }
 
-void lua_push_json(json_object *jobj) {
+void lua_push_json_value(json_object*);
+void lua_push_json_array(json_object*);
+void lua_push_json_object(json_object*);
+
+void lua_push_json_object(json_object *jobj) {
     lua_newtable(L);
     json_object_object_foreach(jobj, key, val) {
         lua_pushstring(L, key);
-        switch (json_object_get_type(val)) {
-            case json_type_object:
-                lua_push_json(val);
-                break;
-            case json_type_null:
-                lua_pushnil(L);
-                break;
-            case json_type_boolean:
-                lua_pushboolean(L, json_object_get_boolean(val));
-                break;
-            case json_type_double:
-                lua_pushnumber(L, json_object_get_double(val));
-                break;
-            case json_type_int:
-                lua_pushinteger(L, json_object_get_int(val));
-                break;
-            case json_type_array:
-                printf("No support for arrays! Key: %s\n", key);
-                lua_pushnil(L);
-                break;
-            case json_type_string:
-            default:
-                lua_pushstring(L, json_object_get_string(val));
-                break;
-        }
+        lua_push_json_value(val);
         lua_settable(L, -3);
+    }
+}
+
+void lua_push_json_array(json_object *jarr) {
+    lua_newtable(L);
+    int len = json_object_array_length(jarr);
+
+    for (int i = 0; i < len; ++i) {
+        json_object *val = json_object_array_get_idx(jarr, i);
+        lua_pushinteger(L, i);
+        lua_push_json_value(val);
+        lua_settable(L, -3);
+    }
+}
+
+void lua_push_json_value(json_object *jval) {
+    switch (json_object_get_type(jval)) {
+        case json_type_object:
+            lua_push_json_object(jval);
+            break;
+        case json_type_null:
+            lua_pushnil(L);
+            break;
+        case json_type_boolean:
+            lua_pushboolean(L, json_object_get_boolean(jval));
+            break;
+        case json_type_double:
+            lua_pushnumber(L, json_object_get_double(jval));
+            break;
+        case json_type_int:
+            lua_pushinteger(L, json_object_get_int(jval));
+            break;
+        case json_type_array:
+            lua_push_json_array(jval);
+            break;
+        case json_type_string:
+        default:
+            lua_pushstring(L, json_object_get_string(jval));
+            break;
     }
 }
 
@@ -245,7 +264,7 @@ void assess(json_object *jobj) {
             lua_getglobal(L, event);
 
             if (lua_isfunction(L, -1)) {
-                lua_push_json(jobj);
+                lua_push_json_value(jobj);
                 lua_pcall(L, 1, 0, 0);
                 g13_render();
             }
