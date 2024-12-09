@@ -66,19 +66,18 @@ function StartJump(t)
 end
 
 function FSSSignalDiscovered(t)
-    if jumping then
-        jumping = false
-        row = 0
-        reset_lcd()
+    if jumping or row == 0 then
+        reset()
     end
 
-    if t['IsStation'] then
+    if t['IsStation'] and row < 4 then
         signal_type = t['SignalType']
         if signal_type == 'FleetCarrier' then
             -- I generally don't care, but useful to know there's one there
             set_color(0xff, 0x00, 0xff)
         else
-            draw_string(4, 2 + 10*row, 'STATION: ' .. signal_type)
+            signal_name = t['SignalName']
+            draw_string(4, 2 + 10*row, 'S: ' .. signal_name)
             row = row + 1
         end
     end
