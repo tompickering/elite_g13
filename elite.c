@@ -1,10 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
 #include <string.h>
 
 #include <json-c/json.h>
@@ -206,52 +203,6 @@ void stick(unsigned char new_x, unsigned char new_y) {
     }
 }
 
-char s_filepath[4096];
-
-int get_filepath(const char* dir) {
-    struct dirent *dp;
-    DIR *dfd;
-
-    if (dir == NULL) {
-        dir = "/home/tom/games/elite_log";
-    }
-
-    if ((dfd = opendir(dir)) == NULL) {
-        fprintf(stderr, "Can't open %s\n", dir);
-        return 0;
-    }
-
-    time_t max_t = 0;
-
-    while ((dp = readdir(dfd)) != NULL) {
-        struct stat stbuf ;
-        char filename_qfd[4096];
-        sprintf(filename_qfd , "%s/%s",dir,dp->d_name) ;
-        if (stat(filename_qfd, &stbuf) == -1)
-        {
-            printf("Unable to stat file: %s\n",filename_qfd) ;
-            continue ;
-        }
-
-        if ((stbuf.st_mode & S_IFMT) == S_IFDIR)
-        {
-            continue;
-            // Skip directories
-        }
-        else
-        {
-            if (!strncmp(dp->d_name, "Journal.", 8) && stbuf.st_mtime > max_t)
-            {
-                max_t = stbuf.st_mtime;
-                sprintf(s_filepath, "%s/%s", dir, dp->d_name) ;
-            }
-        }
-    }
-}
-
-static char remain_str[8];
-static bool jumping = false;
-
 void lua_push_json(json_object *jobj) {
     lua_newtable(L);
     json_object_object_foreach(jobj, key, val) {
@@ -305,65 +256,56 @@ void assess(json_object *jobj) {
 struct json_tokener* s_tok;
 
 // Parse a line from the file as a JSON object
-void parse(char* str) {
+bool parse(char* str) {
     json_object *jobj = NULL;
     int stringlen = 0;
     enum json_tokener_error jerr;
     stringlen = strlen(str);
     jobj = json_tokener_parse_ex(s_tok, str, stringlen);
+
     jerr = json_tokener_get_error(s_tok);
+
     if (jerr == json_tokener_success) {
         assess(jobj);
     } else {
         fprintf(stderr, "Error: %s\n", json_tokener_error_desc(jerr));
+        fprintf(stderr, "%s\n", str);
         // The tokener can end up in a confused state - refresh so we can continue working
         json_tokener_free(s_tok);
         s_tok = json_tokener_new();
         // Handle errors, as appropriate for your application.
+        return false;
     }
+
+    return true;
 }
 
-static int last_position=0;
-int find_new_text(FILE* file) {
-    fseek(file, 0, SEEK_END);
-    int filesize = ftell(file);
+char input_buf[1024 * 1024];
+size_t input_buf_head = 0;
 
-    // Check if the new file started
-    if (filesize < last_position) {
-        last_position=0;
-    }
+int update() {
+    while (1) {
+        char c = fgetc(stdin);
 
-    // Read file from last position until newline is found
-
-    static bool first = true;
-
-    for (int n=last_position; n<filesize; n++) {
-        fseek(file, last_position, SEEK_SET);
-        char *ptr = NULL;
-        size_t n2 = 0;
-
-        getline(&ptr, &n2, file);
-
-        if (ptr) {
-            last_position = ftell(file);
-            /*printf("Char: %s Last %d\n", ptr, last_position);*/
-
-            if (!first) {
-                parse(ptr);
-            }
-
-            // EOF
-            if (filesize == last_position) {
-                return filesize;
-            }
-            free(ptr);
+        if (c == EOF) {
+            break;
         }
 
+        input_buf[input_buf_head++] = c;
+
+        if (input_buf_head >= sizeof(input_buf)) {
+            fprintf(stderr, "Line too long\n");
+            exit(1);
+        }
+
+        if (c == '\n') {
+            input_buf[input_buf_head] = '\0';
+            if (input_buf_head > 5) {
+                parse(input_buf);
+            }
+            input_buf_head = 0;
+        }
     }
-
-    first = false;
-
-    return 0;
 }
 
 int init_lua() {
@@ -424,34 +366,24 @@ int main(int argc, char** argv) {
     g13_bind_key(CLICK2, click2);
     */
 
-    char *dir = NULL;
-
-    if (argc > 1)
-    {
-        dir = argv[1];
-    }
-
-    s_filepath[0] = '\0';
-    get_filepath(dir);
-    /*sprintf(s_filepath, "/home/tom/drivers/elite/testfile");*/
-
-    if (s_filepath[0] == '\0') {
-        printf("Could not find a journal file\n");
-        return 1;
-    }
-
-    printf("File is %s\n", s_filepath);
-    FILE* file = fopen(s_filepath, "r");
-
-    remain_str[0] = '\0';
-
     s_tok = json_tokener_new();
+
+    // Configure stdin not to block when there's nothing to read
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    if (flags == -1) {
+        fprintf(stderr, "Unable to read stdin flags\n");
+        exit(1);
+    }
+    if (fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK) == -1) {
+        fprintf(stderr, "Unable to set stdin flags\n");
+        exit(1);
+    }
 
     while (1) {
         // Update focus window
         int revert_to;
         XGetInputFocus(display, &win, &revert_to);
-        find_new_text(file);
+        update();
         usleep(10000);
     }
 
