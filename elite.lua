@@ -16,7 +16,13 @@ ship = ''
 jumping = false
 jumps_remaining = 0
 
-function reset(t)
+function clear()
+    jumping = false
+    row = 0
+    clear_lcd()
+end
+
+function reset()
     jumping = false
     row = 0
     reset_lcd()
@@ -51,7 +57,7 @@ function StartJump(t)
             set_color(0x00, 0x00, 0xff)
         end
 
-        clear_lcd()
+        clear()
         draw_string(60, 2, "JUMPING");
         draw_string(4, 10, star_system)
         draw_string(4, 20, star_class)
@@ -79,7 +85,7 @@ function FSSSignalDiscovered(t)
 end
 
 function DockingGranted(t)
-    clear_lcd()
+    clear()
     set_color(0x00, 0xff, 0x00)
     draw_string_scaled(36, 2, "GRANTED", 2);
     landing_pad = tostring(t['LandingPad'])
@@ -90,7 +96,7 @@ function DockingGranted(t)
 end
 
 function DockingDenied(t)
-    clear_lcd()
+    clear()
     set_color(0xff, 0x00, 0x00)
     draw_string_scaled(28, 10, "DENIED", 3)
 end
