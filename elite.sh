@@ -15,4 +15,4 @@ fi
 
 echo "Found journal '$journal'"
 
-tail -f "$journal" | $elitepath $journaldir
+tail -f "$journal" | dos2unix | $elitepath $journaldir
