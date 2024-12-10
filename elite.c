@@ -264,8 +264,10 @@ void assess(json_object *jobj) {
             lua_getglobal(L, event);
 
             if (lua_isfunction(L, -1)) {
+                lua_checkstack(L, 1000);
                 lua_push_json_value(jobj);
                 lua_pcall(L, 1, 0, 0);
+                lua_settop(L, 0);
                 g13_render();
             }
         }
