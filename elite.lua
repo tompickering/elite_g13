@@ -38,12 +38,17 @@ function reset()
     reset_lcd()
 end
 
+function set_ship(s)
+    ship = s
+    print('Using ship: ' .. ship)
+end
+
 function LoadGame(t)
-    ship = t['Ship']
+    set_ship(t['Ship'])
 end
 
 function ShipyardSwap(t)
-    ship = t['ShipType']
+    set_ship(t['ShipType'])
 end
 
 function FSDTarget(t)
