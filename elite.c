@@ -411,7 +411,7 @@ int init_lua() {
 
 int main(int argc, char** argv) {
     if (init_lua() != 0) {
-        printf("COULD NOT INITIALISE LUA\n");
+        fprintf(stderr, "COULD NOT INITIALISE LUA\n");
         return 1;
     }
 
@@ -419,7 +419,7 @@ int main(int argc, char** argv) {
     XSetErrorHandler(handle_x11_error);
 
     if (g13_init() != 0) {
-        printf("COULD NOT INITIALISE G13\n");
+        fprintf(stderr, "COULD NOT INITIALISE G13\n");
     }
 
     g13_bind_all_keys(key_handler);
