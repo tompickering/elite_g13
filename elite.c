@@ -61,6 +61,41 @@ int LUAWRAPPER_g13_draw_string_scaled(lua_State *L) {
     return 0;
 }
 
+#define MAX_ICON_SIZE 32
+
+int LUAWRAPPER_g13_define_icon(lua_State *L) {
+    uint32_t icon[MAX_ICON_SIZE];
+
+    if (lua_istable(L, 1) != 0)
+    {
+        size_t size = lua_rawlen(L, 1);
+
+        if (size > MAX_ICON_SIZE) {
+            fprintf(stderr, "Error: Icon exceeds max size\n");
+            size = MAX_ICON_SIZE;
+        }
+
+        for (size_t i = 0; i < size; ++i)
+        {
+            lua_rawgeti(L, 1, i + 1);
+            icon[i] = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+        }
+
+        lua_pushinteger(L, g13_define_icon(icon, size));
+        return 1;
+    }
+
+    return -1;
+}
+
+int LUAWRAPPER_g13_draw_icon(lua_State *L) {
+    int id = luaL_checkinteger(L, 1);
+    int x = luaL_checkinteger(L, 2);
+    int y = luaL_checkinteger(L, 3);
+    g13_draw_icon(id, x, y);
+}
+
 ///////////////////////
 
 int handle_x11_error(Display* display, XErrorEvent* error){
@@ -360,6 +395,16 @@ int init_lua() {
     lua_setglobal(L, "draw_string");
     lua_pushcfunction(L, LUAWRAPPER_g13_draw_string_scaled);
     lua_setglobal(L, "draw_string_scaled");
+    lua_pushcfunction(L, LUAWRAPPER_g13_define_icon);
+    lua_setglobal(L, "define_icon");
+    lua_pushcfunction(L, LUAWRAPPER_g13_draw_icon);
+    lua_setglobal(L, "draw_icon");
+
+    lua_getglobal(L, "init");
+    if (lua_isfunction(L, -1)) {
+        lua_pcall(L, 0, 0, 0);
+        g13_render();
+    }
 
     return 0;
 }
