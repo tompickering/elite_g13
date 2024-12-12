@@ -87,10 +87,7 @@ function FSSSignalDiscovered(t)
 
     if t['IsStation'] and row < 4 then
         signal_type = t['SignalType']
-        if signal_type == 'FleetCarrier' then
-            -- I generally don't care, but useful to know there's one there
-            set_color(0xff, 0x00, 0xff)
-        else
+        if signal_type ~= 'FleetCarrier' then
             signal_name = t['SignalName']
             draw_string(4, 2 + 10*row, 'S: ' .. signal_name)
             row = row + 1
