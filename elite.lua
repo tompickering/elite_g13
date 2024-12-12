@@ -1,3 +1,13 @@
+icons = {}
+
+function init()
+    icons['Federation'] = define_icon({4064,12568,16644,33666,36834,66433,65793,78113,77825,65553,65593,65661,32826,32786,16388,12312,4064})
+    icons['Empire'] = define_icon({0, 0, 1966095,986142,495164,247928,124144,61920,32704,16256,7936,7936,3584,1024, 0, 0, 0})
+    icons['Alliance'] = define_icon({4064,12312,18372,39090,41610,74377,83653,83653,85733,85349,89013,79817,45050,38962,18372,12312,4064})
+
+    draw_icon(icons['Federation'], 120, 4)
+end
+
 function is_in(t, val)
     for k, v in ipairs(t) do
         if v == val then
@@ -115,6 +125,12 @@ function Docked(t)
         set_color(0x00, 0xff, 0x00)
     else
         set_color(0xff, 0xff, 0xff)
+    end
+
+    allegiance_icon = icons[allegiance]
+
+    if allegiance_icon ~= nil then
+        draw_icon(allegiance_icon, 136, 4)
     end
 
     for k, v in ipairs(services) do
