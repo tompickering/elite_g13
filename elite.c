@@ -13,6 +13,9 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include <sys/stat.h>
+#include <time.h>
+
 #include "keydefs.h"
 
 Display *display;
@@ -365,8 +368,6 @@ int update() {
 }
 
 int init_lua() {
-    int status;
-
     L= NULL;
 
     L = luaL_newstate();
@@ -377,7 +378,28 @@ int init_lua() {
 
     luaL_openlibs(L);
 
-    status = luaL_loadfile(L, "elite.lua");
+    return 0;
+}
+
+int init_lua_script() {
+    static time_t s_mtime = 0;
+
+    struct stat statbuf;
+    stat("elite.lua", &statbuf);
+
+    time_t mtime = statbuf.st_mtim.tv_sec;
+
+    if (mtime == s_mtime) {
+        return 0;
+    }
+
+    reset_lcd(true);
+
+    printf("Loading lua script...\n");
+
+    s_mtime = mtime;
+
+    int status = luaL_loadfile(L, "elite.lua");
 
     if (status != LUA_OK) {
         return 1;
@@ -425,7 +447,10 @@ int main(int argc, char** argv) {
     g13_bind_all_keys(key_handler);
     g13_bind_stick(stick);
 
-    reset_lcd(true);
+    if (init_lua_script() != 0) {
+        fprintf(stderr, "COULD NOT INITIALISE LUA SCRIPT\n");
+        return 1;
+    }
 
     /*
     g13_bind_key(CLICK1, click1);
@@ -451,6 +476,7 @@ int main(int argc, char** argv) {
         XGetInputFocus(display, &win, &revert_to);
         update();
         usleep(10000);
+        init_lua_script();
     }
 
     g13_clear_lcd();
