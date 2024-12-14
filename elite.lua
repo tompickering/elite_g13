@@ -8,6 +8,16 @@ function init()
     draw_icon(icons['Federation'], 120, 4)
 end
 
+function zero_pad(n, l)
+    n = tostring(n)
+
+    while #n < l do
+        n = '0' .. n
+    end
+
+    return n
+end
+
 function is_in(t, val)
     for k, v in ipairs(t) do
         if v == val then
@@ -25,6 +35,8 @@ row = 0
 ship = ''
 jumping = false
 jumps_remaining = 0
+limpetcontroller = true
+limpets = 0
 
 function clear()
     jumping = false
@@ -45,6 +57,51 @@ end
 
 function LoadGame(t)
     set_ship(t['Ship'])
+end
+
+function Loadout(t)
+    mod = t['Modules']
+
+    limpetcontroller = false
+
+    for i, v in ipairs(mod) do
+        if string.find(v['Item'], "dronecontrol") then
+            limpetcontroller = true
+            return
+        end
+    end
+end
+
+function Cargo(t)
+    limpets = 0
+
+    inv = t['Inventory']
+
+    if inv == nil then return end
+
+    for i, v in ipairs(inv) do
+        if v['Name'] == 'drones' then
+            limpets = v['Count']
+        end
+    end
+end
+
+function BuyDrones(t)
+    limpets = limpets + t['Count']
+end
+
+function SellDrones(t)
+    limpets = limpets - t['Count']
+end
+
+function LaunchDrone(t)
+    limpets = limpets - 1
+end
+
+function NavRoute(t)
+    if limpetcontroller then
+        draw_string(90, 34, 'LIMPETS: ' .. zero_pad(limpets, 3))
+    end
 end
 
 function ShipyardSwap(t)
@@ -100,10 +157,7 @@ function DockingGranted(t)
     set_color(0x00, 0xff, 0x00)
     draw_string_scaled(36, 4, "GRANTED", 2);
     landing_pad = tostring(t['LandingPad'])
-    if #landing_pad < 2 then
-        landing_pad = '0' .. landing_pad
-    end
-    draw_string_scaled(60, 20, landing_pad, 3)
+    draw_string_scaled(60, 20, zero_pad(landing_pad, 2), 3)
 end
 
 function DockingDenied(t)
