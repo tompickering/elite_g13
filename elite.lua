@@ -179,8 +179,10 @@ function Docked(t)
         set_color(0x00, 0x00, 0xff)
     elseif allegiance == 'Alliance' then
         set_color(0x00, 0xff, 0x00)
+    elseif allegiance == 'Independent' then
+        set_color(0xff, 0xff, 0x00)
     else
-        set_color(0xff, 0xff, 0xff)
+        set_color(0x00, 0xff, 0xff)
     end
 
     allegiance_icon = icons[allegiance]
