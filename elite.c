@@ -132,13 +132,18 @@ void key_handler(int k, bool pressed) {
     if (k == G3 ) *c = KEY_Q;
     if (k == G4 ) *c = KEY_W;
     if (k == G5 ) *c = KEY_E;
-    if (k == G7 ) *c = KEY_HOME;
+    if (k == G6 ) *c = KEY_R;
+    if (k == G7 ) *c = KEY_APOS;
+    if (k == G8 ) *c = KEY_C;
     if (k == G10) *c = KEY_A;
     if (k == G11) *c = KEY_S;
     if (k == G12) *c = KEY_D;
+    if (k == G13) *c = KEY_F;
+    if (k == G14) *c = KEY_G;
     if (k == G15) *c = KEY_LSHIFT;
+    if (k == G18) *c = KEY_X;
+    if (k == G19) *c = KEY_B;
     if (k == G20) *c = KEY_LCTRL;
-    if (k == G21) *c = KEY_END;
     if (k == G22) *c = KEY_SPACE;
 
     if (k == M1 ) *c = KEY_1;
@@ -146,8 +151,10 @@ void key_handler(int k, bool pressed) {
     if (k == M3 ) *c = KEY_3;
     if (k == MR ) *c = KEY_4;
 
-    if (k == CLICK1) *c = KEY_BACKSPACE;
-    if (k == CLICK2) *c = KEY_BACKSPACE;
+    if (k == ROUND) *c = KEY_BACKSPACE;
+
+    if (k == CLICK1) *c = KEY_Y;
+    if (k == CLICK2) *c = KEY_T;
 
     static bool silent_running = false;
     if (pressed && k == G21) {
@@ -328,7 +335,7 @@ bool parse(char* str) {
         assess(jobj);
     } else {
         fprintf(stderr, "Error: %s\n", json_tokener_error_desc(jerr));
-        fprintf(stderr, "%s\n", str);
+        //fprintf(stderr, "%s\n", str);
         // The tokener can end up in a confused state - refresh so we can continue working
         json_tokener_free(s_tok);
         s_tok = json_tokener_new();

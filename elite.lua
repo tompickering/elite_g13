@@ -1,3 +1,15 @@
+ANACONDA = 'anaconda'
+ASPX = 'asp'
+CORVETTE = 'federation_corvette'
+DBX = 'diamondbackxl'
+KRAIT = 'Krait_MkII'
+MANDALAY = 'mandalay'
+PYTHON_II = 'Python_NX'
+SIDEWINDER = 'sidewinder'
+T8 = 'type8'
+T10 = 'type9_military'
+VULTURE = 'vulture'
+
 icons = {}
 
 function init()
@@ -5,7 +17,9 @@ function init()
     icons['Empire'] = define_icon({0, 0, 1966095,986142,495164,247928,124144,61920,32704,16256,7936,7936,3584,1024, 0, 0, 0})
     icons['Alliance'] = define_icon({4064,12312,18372,39090,41610,74377,83653,83653,85733,85349,89013,79817,45050,38962,18372,12312,4064})
 
-    draw_icon(icons['Federation'], 120, 4)
+    --draw_icon(icons['Federation'], 120, 4)
+
+    --draw_string(90, 34, 'LIMPETS: ' .. zero_pad(limpets, 3))
 end
 
 function zero_pad(n, l)
@@ -29,23 +43,23 @@ function is_in(t, val)
 end
 
 stars_scoopable = {'O', 'B', 'A', 'F', 'G', 'K', 'M'}
-stars_danger = {'D', 'DA', 'DB', 'DC', 'DO', 'DQ', 'DX'}
+stars_danger = {'D', 'DA', 'DB', 'DC', 'DO', 'DQ', 'DX', 'N'}
 
 row = 0
+rows = {}
+
 ship = ''
-jumping = false
 jumps_remaining = 0
 limpetcontroller = true
 limpets = 0
+exobio_planets = {}
 
 function clear()
-    jumping = false
     row = 0
     clear_lcd()
 end
 
 function reset()
-    jumping = false
     row = 0
     reset_lcd()
 end
@@ -114,8 +128,6 @@ end
 
 function StartJump(t)
     if t['JumpType'] == 'Hyperspace' then
-        jumping = true
-
         star_system = t['StarSystem']
         star_class = t['StarClass']
 
@@ -130,25 +142,94 @@ function StartJump(t)
         end
 
         clear()
-        draw_string(60, 2, "JUMPING");
+        draw_string(60, 1, "JUMPING");
         draw_string(4, 10, star_system)
         draw_string(4, 20, star_class)
-        draw_string(4, 30, 'JUMPS: ' .. jumps_remaining_str)
+        draw_string(4, 30, 'JUMPS: ')
+        draw_string_scaled(46, 24, jumps_remaining_str, 2)
+
+        exobio_planets = {}
     end
 end
 
-function FSSSignalDiscovered(t)
-    if jumping or row == 0 then
-        reset()
+function FSDJump(t)
+    pp_state = t['PowerplayState']
+    pp_power = t['ControllingPower']
+    pp_powers = t['Powers']
+
+    c = false
+
+    if pp_power ~= nil then
+        clear()
+        c = true
+        draw_string(4, 1, pp_power);
     end
+
+    if pp_state ~= nil then
+        if not c then
+            clear()
+            c = true
+        end
+        draw_string(4, 11, pp_state);
+    end
+
+    if pp_powers ~= nil then
+        if not c then
+            clear()
+            c = true
+        end
+        print('Powers:')
+        for i, v in ipairs(pp_powers) do
+            print(i)
+            print(v)
+            if v == 'Yuri Grom' then
+                draw_string(4, 21, 'YG');
+            end
+        end
+    end
+end
+
+function _FSSSignalDiscovered(t)
+    to_draw = nil
 
     if t['IsStation'] and row < 4 then
         signal_type = t['SignalType']
         if signal_type ~= 'FleetCarrier' then
             signal_name = t['SignalName']
-            draw_string(4, 2 + 10*row, 'S: ' .. signal_name)
-            row = row + 1
+
+            print('SIGNAL: ' .. signal_name)
+            for i, v in ipairs(rows) do
+                print('IN ROWS: ' .. v)
+                if i > row then
+                    signal_name = nil
+                    print('BREAKING')
+                    break
+                end
+
+                if v == signal_name then
+                    signal_name = nil
+                    print('BREAKING')
+                    break
+                end
+
+                print('NOT EQUAL: ' .. v .. '/' .. signal_name)
+            end
+
+            if signal_name ~= nil then
+                rows[row] = signal_name
+                print(signal_name .. ':' .. signal_type)
+                to_draw = 'S: ' .. signal_name
+            end
         end
+    end
+
+    if to_draw ~= nil then
+        if row == 0 then
+            reset()
+        end
+
+        draw_string(4, 2 + 10*row, to_draw)
+        row = row + 1
     end
 end
 
@@ -193,6 +274,66 @@ function Docked(t)
 
     for k, v in ipairs(services) do
         print(tostring(k) .. " : " .. tostring(v))
+    end
+
+    draw_string_scaled(4, 4, t['StationEconomy_Localised'], 2);
+end
+
+function Scan(t)
+    function update_exobio()
+        reset()
+        set_color(0xff, 0x00, 0xff)
+        --draw_string_scaled(38, 4, "EXOBIO", 2);
+        --draw_string_scaled(60, 20, zero_pad(exobio_planets, 2), 3)
+        sorted = {}
+        idx = 1
+        for k, v in pairs(exobio_planets) do
+            sorted[idx] = k
+            idx = idx + 1
+        end
+
+        table.sort(sorted)
+
+        for i, body in ipairs(sorted) do
+            n = i - 1
+            row = n % 4
+            col = n // 4
+            print(tostring(row) .. ' ' .. tostring(col) .. ': ' .. body)
+            draw_string(2 + col*30, 2 + row*10, body);
+        end
+    end
+
+    if t['ScanType'] == 'Detailed' then
+        if t['Landable'] and t['AtmosphereType'] ~= "None" then
+            high_metal = false
+
+            if t['Composition'] ~= nil then
+                for k, v in pairs(t['Composition']) do
+                    if k == 'Metal' then
+                        if v > 0.28 then
+                            high_metal = true
+                        end
+                    end
+                end
+            end
+
+            for k, v in pairs(t['AtmosphereComposition']) do
+                if    (v['Name'] == 'SulphurDioxide' and high_metal)
+                   or (v['Name'] == 'CarbonDioxide' and high_metal)
+                    or v['Name'] == 'Ammonia'
+                    or v['Name'] == 'Nitrogen'
+                    or v['Name'] == 'Oxygen'
+                    or v['Name'] == 'Water'
+                    or v['Name'] == 'Neon'
+                    or v['Name'] == 'Helium' then
+                        body = t['BodyName']
+                        star = t['StarSystem']
+                        exobio_key = string.sub(body, #star+2, #body)
+                        exobio_planets[exobio_key] = true
+                        update_exobio()
+                end
+            end
+        end
     end
 end
 
