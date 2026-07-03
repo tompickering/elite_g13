@@ -12,6 +12,8 @@ VULTURE = 'vulture'
 
 icons = {}
 
+merits = 0
+
 function init()
     icons['Federation'] = define_icon({4064,12568,16644,33666,36834,66433,65793,78113,77825,65553,65593,65661,32826,32786,16388,12312,4064})
     icons['Empire'] = define_icon({0, 0, 1966095,986142,495164,247928,124144,61920,32704,16256,7936,7936,3584,1024, 0, 0, 0})
@@ -335,6 +337,24 @@ function Scan(t)
             end
         end
     end
+end
+
+function PowerplayMerits(t)
+    merits = merits + t['MeritsGained']
+    print('Merits gained this session: ' .. zero_pad(merits, 6))
+end
+
+function ResetMerits()
+    reset()
+    ShowMerits()
+    merits = 0
+    draw_string(4, 10, 'RESET');
+    print('Merits reset')
+end
+
+function ShowMerits()
+    reset()
+    draw_string(4, 1, 'MERITS: ' .. zero_pad(merits, 6));
 end
 
 SupercruiseExit = reset

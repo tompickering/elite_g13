@@ -166,6 +166,22 @@ void key_handler(int k, bool pressed) {
         }
     }
 
+    if (pressed && k == G17) {
+        lua_getglobal(L, "ResetMerits");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+            g13_render();
+        }
+    }
+
+    if (pressed && k == G21) {
+        lua_getglobal(L, "ShowMerits");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+            g13_render();
+        }
+    }
+
     if (ev.xkey.keycode != KEY_ESC) {
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
