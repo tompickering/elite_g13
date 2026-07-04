@@ -156,6 +156,7 @@ void key_handler(int k, bool pressed) {
     if (k == CLICK1) *c = KEY_Y;
     if (k == CLICK2) *c = KEY_T;
 
+    /*
     static bool silent_running = false;
     if (pressed && k == G21) {
         silent_running = !silent_running;
@@ -165,6 +166,7 @@ void key_handler(int k, bool pressed) {
             reset_lcd(true);
         }
     }
+    */
 
     if (pressed && k == G17) {
         lua_getglobal(L, "ResetMerits");
