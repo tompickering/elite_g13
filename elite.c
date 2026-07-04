@@ -186,6 +186,7 @@ void key_handler(int k, bool pressed) {
         lua_getglobal(L, "Mode_1");
         if (lua_isfunction(L, -1)) {
             lua_pcall(L, 0, 0, 0);
+            g13_render();
         }
     }
 
@@ -193,6 +194,7 @@ void key_handler(int k, bool pressed) {
         lua_getglobal(L, "Mode_2");
         if (lua_isfunction(L, -1)) {
             lua_pcall(L, 0, 0, 0);
+            g13_render();
         }
     }
 
@@ -200,6 +202,7 @@ void key_handler(int k, bool pressed) {
         lua_getglobal(L, "Mode_3");
         if (lua_isfunction(L, -1)) {
             lua_pcall(L, 0, 0, 0);
+            g13_render();
         }
     }
 
@@ -207,6 +210,7 @@ void key_handler(int k, bool pressed) {
         lua_getglobal(L, "Mode_4");
         if (lua_isfunction(L, -1)) {
             lua_pcall(L, 0, 0, 0);
+            g13_render();
         }
     }
 
