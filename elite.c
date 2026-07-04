@@ -151,7 +151,7 @@ void key_handler(int k, bool pressed) {
     if (k == M3 ) *c = KEY_3;
     if (k == MR ) *c = KEY_4;
 
-    if (k == ROUND) *c = KEY_BACKSPACE;
+    if (k == ROUND) *c = KEY_M;
 
     if (k == CLICK1) *c = KEY_Y;
     if (k == CLICK2) *c = KEY_T;
