@@ -83,6 +83,10 @@ function Mode_2() set_mode('exploration') end
 function Mode_3() set_mode('merits') end
 function Mode_4() set_mode('mining') end
 
+
+-- EVENTS --
+
+
 function LoadGame(t)
     set_ship(t['Ship'])
 end
@@ -353,8 +357,11 @@ end
 
 function PowerplayMerits(t)
     merits = merits + t['MeritsGained']
-    print('Merits gained this session: ' .. zero_pad(merits, 6))
 end
+
+
+-- EVENTS END --
+
 
 function ResetMerits()
     reset()
