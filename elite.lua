@@ -313,6 +313,17 @@ function Docked(t)
     draw_string_scaled(4, 4, t['StationEconomy_Localised'], 2);
 end
 
+function ShieldState(t)
+    clear()
+    if t['ShieldsUp'] then
+        set_color(0x00, 0xff, 0xff)
+        draw_string_scaled(24, 10, "SHIELDS UP", 2)
+    else
+        set_color(0xff, 0x00, 0x00)
+        draw_string_scaled(12, 10, "SHIELDS DOWN", 2)
+    end
+end
+
 function update_exobio()
     reset()
 
