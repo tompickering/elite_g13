@@ -350,6 +350,8 @@ void assess(json_object *jobj) {
         const char *event = json_object_get_string(eventobj);
 
         if (event != NULL && strnlen(event, 1) > 0) {
+            printf("EVENT: %s\n", event);
+
             lua_getglobal(L, event);
 
             if (lua_isfunction(L, -1)) {
