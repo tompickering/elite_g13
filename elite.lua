@@ -44,6 +44,8 @@ function is_in(t, val)
     return false
 end
 
+mode = 'normal'
+
 stars_scoopable = {'O', 'B', 'A', 'F', 'G', 'K', 'M'}
 stars_danger = {'D', 'DA', 'DB', 'DC', 'DO', 'DQ', 'DX', 'N'}
 
@@ -70,6 +72,16 @@ function set_ship(s)
     ship = s
     print('Using ship: ' .. ship)
 end
+
+function set_mode(m)
+    mode = m
+    print('Setting mode: ' .. mode)
+end
+
+function Mode_1() set_mode('normal') end
+function Mode_2() set_mode('exploration') end
+function Mode_3() set_mode('merits') end
+function Mode_4() set_mode('mining') end
 
 function LoadGame(t)
     set_ship(t['Ship'])

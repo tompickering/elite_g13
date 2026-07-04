@@ -182,6 +182,34 @@ void key_handler(int k, bool pressed) {
         }
     }
 
+    if (pressed && k == T1) {
+        lua_getglobal(L, "Mode_1");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+        }
+    }
+
+    if (pressed && k == T2) {
+        lua_getglobal(L, "Mode_2");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+        }
+    }
+
+    if (pressed && k == T3) {
+        lua_getglobal(L, "Mode_3");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+        }
+    }
+
+    if (pressed && k == T4) {
+        lua_getglobal(L, "Mode_4");
+        if (lua_isfunction(L, -1)) {
+            lua_pcall(L, 0, 0, 0);
+        }
+    }
+
     if (ev.xkey.keycode != KEY_ESC) {
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
