@@ -80,9 +80,11 @@ function set_mode(m)
     clear()
 
     if mode == 'normal' then
+        set_color(0x00, 0x00, 0xff)
     end
 
     if mode == 'combat' then
+        set_color(0x00, 0xff, 0xff)
     end
 
     if mode == 'exobio' then
@@ -90,6 +92,7 @@ function set_mode(m)
     end
 
     if mode == 'merits' then
+        set_color(0xff, 0xff, 0x00)
         ShowMerits()
     end
 end
