@@ -76,11 +76,27 @@ end
 function set_mode(m)
     mode = m
     print('Setting mode: ' .. mode)
+
+    clear()
+
+    if mode == 'normal' then
+    end
+
+    if mode == 'combat' then
+    end
+
+    if mode == 'exobio' then
+        update_exobio()
+    end
+
+    if mode == 'merits' then
+        ShowMerits()
+    end
 end
 
 function Mode_1() set_mode('normal') end
 function Mode_2() set_mode('combat') end
-function Mode_3() set_mode('mining') end
+function Mode_3() set_mode('exobio') end
 function Mode_4() set_mode('merits') end
 
 
@@ -297,30 +313,38 @@ function Docked(t)
     draw_string_scaled(4, 4, t['StationEconomy_Localised'], 2);
 end
 
-function Scan(t)
-    function update_exobio()
-        reset()
-        set_color(0xff, 0x00, 0xff)
-        --draw_string_scaled(38, 4, "EXOBIO", 2);
-        --draw_string_scaled(60, 20, zero_pad(exobio_planets, 2), 3)
-        sorted = {}
-        idx = 1
-        for k, v in pairs(exobio_planets) do
-            sorted[idx] = k
-            idx = idx + 1
-        end
+function update_exobio()
+    reset()
 
-        table.sort(sorted)
-
-        for i, body in ipairs(sorted) do
-            n = i - 1
-            row = n % 4
-            col = n // 4
-            print(tostring(row) .. ' ' .. tostring(col) .. ': ' .. body)
-            draw_string(2 + col*30, 2 + row*10, body);
-        end
+    --draw_string_scaled(38, 4, "EXOBIO", 2);
+    --draw_string_scaled(60, 20, zero_pad(exobio_planets, 2), 3)
+    sorted = {}
+    idx = 1
+    for k, v in pairs(exobio_planets) do
+        sorted[idx] = k
+        idx = idx + 1
     end
 
+    if idx == 1 then
+        -- No exobio data
+        set_color(0x00, 0x00, 0xff)
+        return
+    end
+
+    set_color(0xff, 0x00, 0xff)
+
+    table.sort(sorted)
+
+    for i, body in ipairs(sorted) do
+        n = i - 1
+        row = n % 4
+        col = n // 4
+        print(tostring(row) .. ' ' .. tostring(col) .. ': ' .. body)
+        draw_string(2 + col*30, 2 + row*10, body);
+    end
+end
+
+function Scan(t)
     if t['ScanType'] == 'Detailed' then
         if t['Landable'] and t['AtmosphereType'] ~= "None" then
             high_metal = false
