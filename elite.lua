@@ -92,7 +92,6 @@ function set_mode(m)
     end
 
     if mode == 'merits' then
-        set_color(0xff, 0xff, 0x00)
         ShowMerits()
     end
 end
@@ -395,6 +394,10 @@ end
 
 function PowerplayMerits(t)
     merits = merits + t['MeritsGained']
+
+    if mode == 'merits' then
+        ShowMerits()
+    end
 end
 
 
@@ -409,6 +412,7 @@ function ResetMerits()
 end
 
 function ShowMerits()
+    set_color(0xff, 0xff, 0x00)
     clear()
     draw_string(4, 1, 'MERITS: ' .. zero_pad(merits, 6));
 end
