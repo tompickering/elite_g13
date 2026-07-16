@@ -329,8 +329,6 @@ end
 function update_exobio()
     reset()
 
-    --draw_string_scaled(38, 4, "EXOBIO", 2);
-    --draw_string_scaled(60, 20, zero_pad(exobio_planets, 2), 3)
     sorted = {}
     idx = 1
     for k, v in pairs(exobio_planets) do
