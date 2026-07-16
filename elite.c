@@ -236,7 +236,7 @@ void click2(bool pressed) {
         XEvent ev;
         ev.type = pressed ? KeyPress : KeyRelease;
         ev.xkey.state = None;
-        ev.xkey.keycode = KEY_BACKSPACE;
+        ev.xkey.keycode = KEY_COMMA;
         ev.xkey.same_screen = True;
         XSendEvent(display, win, True, KeyPressMask, &ev);
     }
@@ -511,10 +511,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    /*
     g13_bind_key(CLICK1, click1);
     g13_bind_key(CLICK2, click2);
-    */
 
     s_tok = json_tokener_new();
 
