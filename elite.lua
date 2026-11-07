@@ -57,6 +57,8 @@ jumps_remaining = 0
 limpetcontroller = true
 limpets = 0
 exobio_planets = {}
+colonisation_mats = {}
+colonisation_mats_start_at = 1
 
 function clear()
     row = 0
@@ -94,11 +96,16 @@ function set_mode(m)
     if mode == 'merits' then
         ShowMerits()
     end
+
+    if mode == 'colonisation' then
+        ShowColonisationMats()
+    end
 end
 
 function Mode_1() set_mode('normal') end
 function Mode_2() set_mode('combat') end
-function Mode_3() set_mode('exobio') end
+--function Mode_3() set_mode('exobio') end
+function Mode_3() set_mode('colonisation') end
 function Mode_4() set_mode('merits') end
 
 
@@ -398,6 +405,23 @@ function PowerplayMerits(t)
     end
 end
 
+function ColonisationConstructionDepot(t)
+    colonisation_mats = {}
+
+    ii = 1
+
+    for i, v in ipairs(t['ResourcesRequired']) do
+        outstanding = v['RequiredAmount'] - v['ProvidedAmount']
+
+        if outstanding > 0 then
+            colonisation_mats[ii] = {}
+            colonisation_mats[ii]['name'] = v['Name_Localised']
+            colonisation_mats[ii]['outstanding'] = outstanding
+            ii = ii + 1
+        end
+    end
+end
+
 
 -- EVENTS END --
 
@@ -413,6 +437,37 @@ function ShowMerits()
     set_color(0xff, 0xff, 0x00)
     clear()
     draw_string(4, 1, 'MERITS: ' .. zero_pad(merits, 6));
+end
+
+function ShowColonisationMats()
+    set_color(0xff, 0xff, 0xff)
+    clear()
+
+    if #colonisation_mats == 0 then
+        draw_string(60, 1, "NO DATA");
+        return
+    end
+
+    printed = 0
+    too_many = false
+
+    for i, t in ipairs(colonisation_mats) do
+        if i >= colonisation_mats_start_at then
+            if printed >= 4 then
+                too_many = true
+                break
+            end
+            str = t['name'] .. ': ' .. t['outstanding']
+            draw_string(2, 2 + printed*10, str);
+            printed = printed + 1
+        end
+    end
+
+    if too_many then
+        colonisation_mats_start_at = colonisation_mats_start_at + 4
+    else
+        colonisation_mats_start_at = 1
+    end
 end
 
 SupercruiseExit = reset
